@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бюджет</title>
+    <link rel="stylesheet" href="lab4.css">
+    <script src="scriptlab3.js"></script>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>Бюджет</h2>
+        <a href="#balance" class="active" onclick="showPage('balance')">Баланс</a>
+        <a href="#incomes" onclick="showPage('incomes')">Доходы</a>
+        <a href="#expenses" onclick="showPage('expenses')">Расходы</a>
+        <a href="#settings" onclick="showPage('settings')">Настройки</a>
+    </div>
+
+    <div class="main-content">
+        <div id="balance" class="page-content">
+            <h1>Баланс</h1>
+            <p>Ваш баланс: <span id="balanceResult">0 ₽</span></p>
+            <div class="balance-filter">
+                <span class="week-filter">Выберите период:</span>
+                <input type="date" id="filterStartDate" placeholder="Дата начала">
+                <input type="date" id="filterEndDate" placeholder="Дата окончания">
+                <button onclick="applyDateFilter()">Фильтр по дате</button>
+                <button onclick="openTypeFilterModal()">Фильтр по типу</button>
+            </div>
+
+            <div class="chart-container" style="width: 100%; height: 500px;">
+                <canvas id="balanceChart" style="width: 100%; height: 100%"></canvas>
+            </div>
+        </div>
+        <div id="typeFilterModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeTypeFilterModal()">&times;</span>
+                <h2>Фильтр по типу</h2>
+                <p>Введите типы доходов через запятую:</p>
+                <textarea id="incomeTypeFilterInput" placeholder="Пример: Работа, Подарки, Прочее"></textarea>
+                <p>Введите типы расходов через запятую:</p>
+                <textarea id="expenseTypeFilterInput" placeholder="Пример: Еда, Транспорт, Развлечения"></textarea>
+                <button type="button" onclick="applyTypeFilter()">Применить</button>
+                <button type="button" onclick="clearTypeFilter()">Очистить</button>
+            </div>
+        </div>
+
+        <div id="incomes" class="page-content" style="display: none;">
+            <div class="header">
+                <h1>Доходы</h1>
+                <div class="filter" id="incomeFilter">
+                    <span class="week-filter">Выберите период:</span>
+                    <input type="date" id="incomeFilterStartDate" placeholder="Дата начала">
+                    <input type="date" id="incomeFilterEndDate" placeholder="Дата окончания">
+                    <button onclick="applyIncomeDateFilter()">Фильтр по дате</button>
+                    <button onclick="openIncomeTypeFilterModal()">Фильтр по типу</button>
+                    <button id="addIncomeButton" class="add-button" onclick="openAddIncomeModal()">+</button>
+                </div>
+            </div>
+            <div class="income-table">
+                <table id="incomesTable">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="total">
+                <span>Итого:</span>
+                <span id="totalIncomeAmount">0 ₽</span>
+            </div>
+        </div>
+        <div id="incomeModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeAddIncomeModal()">&times;</span>
+                <h2>Добавить доход</h2>
+                <form id="addIncomeForm">
+                    <label for="incomeValue">Значение:</label>
+                    <input type="number" id="incomeValue" placeholder="Пример: 10000" required>
+                    <label for="incomeType">Тип:</label>
+                    <input type="text" id="incomeType" placeholder="Пример: Работа" required>
+                    <label for="incomeDate">Дата:</label>
+                    <input type="date" id="incomeDate" required>
+                    <label for="incomeCurrency">Валюта:</label>
+                    <input type="text" id="incomeCurrency" placeholder="Пример: USD" required>
+
+                    <button type="button" onclick="addIncome()">Добавить</button>
+                </form>
+            </div>
+        </div>
+        <div id="editIncomeModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditIncomeModal()">&times;</span>
+                <h2>Редактировать доход</h2>
+                <form id="editIncomeForm">
+                    <label for="editIncomeValue">Значение:</label>
+                    <input type="number" id="editIncomeValue" placeholder="Пример: 10000" required>
+
+                    <label for="editIncomeType">Тип:</label>
+                    <input type="text" id="editIncomeType" placeholder="Пример: Работа" required>
+
+                    <label for="editIncomeDate">Дата:</label>
+                    <input type="date" id="editIncomeDate" required>
+
+                    <label for="editIncomeCurrency">Валюта:</label>
+                    <input type="text" id="editIncomeCurrency" placeholder="Пример: USD" required>
+
+                    <button type="button" onclick="saveEditedIncome()">Сохранить</button>
+                </form>
+            </div>
+        </div>
+        <div id="incomeTypeFilterModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeIncomeTypeFilterModal()">&times;</span>
+                <h2>Фильтр по типу доходов</h2>
+                <p>Введите типы через запятую:</p>
+                <textarea id="incomeTypeFilterInput" placeholder="Пример: Работа, Подарки, Прочее"></textarea>
+                <button type="button" onclick="applyIncomeTypeFilter()">Применить</button>
+                <button type="button" onclick="clearIncomeTypeFilter()">Очистить</button>
+            </div>
+        </div>
+
+        <div id="expenses" class="page-content" style="display: none;">
+            <div class="header">
+                <h1>Расходы</h1>
+                <div class="filter" id="expenseFilter">
+                    <span class="week-filter">Выберите период:</span>
+                    <input type="date" id="expenseFilterStartDate" placeholder="Дата начала">
+                    <input type="date" id="expenseFilterEndDate" placeholder="Дата окончания">
+                    <button onclick="applyExpenseDateFilter()">Фильтр по дате</button>
+                    <button onclick="openExpenseTypeFilterModal()">Фильтр по типу</button>
+                    <button id="addExpenseButton" class="add-button" onclick="openAddExpenseModal()">+</button>
+                </div>
+            </div>
+
+            <div class="expense-table">
+                <table id="expensesTable">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="total">
+                <span>Итого:</span>
+                <span id="totalExpenseAmount" style="margin-left: 1105px;">0 ₽</span>
+            </div>
+        </div>
+
+        <div id="expenseModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeAddExpenseModal()">&times;</span>
+                <h2>Добавить расход</h2>
+                <form id="addExpenseForm">
+                    <label for="expenseValue">Значение:</label>
+                    <input type="number" id="expenseValue" placeholder="Пример: 10000" required>
+                    <label for="expenseType">Тип:</label>
+                    <input type="text" id="expenseType" placeholder="Пример: Покупка" required>
+                    <label for="expenseDate">Дата:</label>
+                    <input type="date" id="expenseDate" required>
+                    <label for="expenseCurrency">Валюта:</label>
+                    <input type="text" id="expenseCurrency" placeholder="Пример: USD" required>
+                    <button type="button" onclick="addExpense()">Добавить</button>
+                </form>
+            </div>
+        </div>
+        <div id="editExpenseModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditExpenseModal()">&times;</span>
+                <h2>Редактировать расход</h2>
+                <form id="editExpenseForm">
+                    <label for="editExpenseValue">Значение:</label>
+                    <input type="number" id="editExpenseValue" placeholder="Пример: 10000" required>
+
+                    <label for="editExpenseType">Тип:</label>
+                    <input type="text" id="editExpenseType" placeholder="Пример: Покупка" required>
+
+                    <label for="editExpenseDate">Дата:</label>
+                    <input type="date" id="editExpenseDate" required>
+
+                    <label for="editExpenseCurrency">Валюта:</label>
+                    <input type="text" id="editExpenseCurrency" placeholder="Пример: USD" required>
+
+                    <button type="button" onclick="saveEditedExpense()">Сохранить</button>
+                </form>
+            </div>
+        </div>
+        <div id="expenseTypeFilterModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeExpenseTypeFilterModal()">&times;</span>
+                <h2>Фильтр по типу расходов</h2>
+                <p>Введите типы через запятую:</p>
+                <textarea id="expenseTypeFilterInput" placeholder="Пример: Покупка, Услуги, Прочее"></textarea>
+                <button type="button" onclick="applyExpenseTypeFilter()">Применить</button>
+                <button type="button" onclick="clearExpenseTypeFilter()">Очистить</button>
+            </div>
+        </div>
+
+        <div id="settings" class="page-content" style="display: none;">
+            <h1>Настройки курсов валют</h1>
+            <div class="filter">
+                <span class="week-filter">Выберите период:</span>
+                <input type="date" id="currencyFilterStartDate" placeholder="Дата начала">
+                <input type="date" id="currencyFilterEndDate" placeholder="Дата окончания">
+                <button onclick="applyCurrencyDateFilter()">Фильтр по дате</button>
+                <button onclick="openCurrencyTypeFilterModal()">Фильтр по типу</button>
+            </div>
+
+            <div class="currency-section">
+                <h2>Покупка валют</h2>
+                <table id="buyTable">
+                    <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Курс (₽)</th>
+                            <th>Дата</th>
+                            <th>Редактирование</th>
+                            <th>Удаление</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="currency-section">
+                <h2>Продажа валют</h2>
+                <table id="sellTable">
+                    <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Курс (₽)</th>
+                            <th>Дата</th>
+                            <th>Редактирование</th>
+                            <th>Удаление</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <button id="addCurrencyButton" onclick="openAddCurrencyModal()">+</button>
+    </div>
+
+    <div id="currencyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddCurrencyModal()">&times;</span>
+            <h2>Добавить валюту</h2>
+            <form id="addCurrencyForm">
+                <label for="currencyType">Тип:</label>
+                <select id="currencyType">
+                    <option value="buy">Покупка</option>
+                    <option value="sell">Продажа</option>
+                </select>
+                <label for="currencyName">Наименование:</label>
+                <input type="text" id="currencyName" placeholder="Пример: USD">
+                <label for="currencyRate">Курс (₽):</label>
+                <input type="number" id="currencyRate" placeholder="Пример: 100" step="0.01">
+                <label for="currencyDate">Дата:</label>
+                <input type="date" id="currencyDate">
+                <button type="button" onclick="addCurrency()">Добавить</button>
+            </form>
+        </div>
+    </div>
+    <div id="editCurrencyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditCurrencyModal()">&times;</span>
+            <h2>Редактировать курс</h2>
+            <form id="editCurrencyForm">
+                <label for="editCurrencyName">Наименование:</label>
+                <input type="text" id="editCurrencyName" placeholder="Пример: USD" required>
+
+                <label for="editCurrencyRate">Курс (₽):</label>
+                <input type="number" id="editCurrencyRate" placeholder="Пример: 100" step="0.01" required>
+
+                <label for="editCurrencyDate">Дата:</label>
+                <input type="date" id="editCurrencyDate" required>
+
+                <button type="button" onclick="saveEditedCurrency()">Сохранить</button>
+            </form>
+        </div>
+    </div>
+    <div id="currencyTypeFilterModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeCurrencyTypeFilterModal()">&times;</span>
+            <h2>Фильтр по типу валюты</h2>
+            <p>Введите типы валют через запятую:</p>
+            <textarea id="currencyTypeFilterInput" placeholder="Пример: USD, EUR, RUB"></textarea>
+            <button type="button" onclick="applyCurrencyTypeFilter()">Применить</button>
+            <button type="button" onclick="clearCurrencyTypeFilter()">Очистить</button>
+        </div>
+    </div>
+
+    <script src="scriptlab3.js"></script>
+</body>
+
+</html>
