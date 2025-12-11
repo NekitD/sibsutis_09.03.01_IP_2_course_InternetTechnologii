@@ -1,0 +1,84 @@
+.page {
+    text-align: center;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('fav_icon.png');
+    height: 700px;
+    width: 100%;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    background-attachment: fixed;
+    overflow: hidden;
+    padding-top: 300px;
+    top: 0;
+    left: 0;
+}
+
+.subtitle {
+    text-align: "center";
+}
+
+.title {
+    text-align: "center";
+}
+
+.description {
+    text-align: "center";
+}
+
+.table__content {
+    margin: auto;
+    border: 2px solid black;
+}
+
+.table__song {
+    border: 2px solid black;
+}
+
+.table__anime {
+    border: 2px solid black;
+}
+
+.table__mode {
+    border: 2px solid black;
+}
+
+td {
+    border: 2px solid black;
+}
+
+.description__text_pink {
+    color: #E9AADA;
+}
+
+.description__text {
+    font-size: 24px;
+}
+
+.subtitle__text {
+    font-size: 18px;
+}
+
+.subtitle__text_purpur {
+    color: #CD20A5;
+}
+
+span.title__Tr_purpur {
+    font-size: 70px;
+    color: #CD20A5;
+}
+
+span.title__scription_purpur {
+    font-size: 70px;
+    color: #CD20A5;
+}
+
+span.title__ANI_red {
+    font-size: 70px;
+    color: #CF204F;
+}
